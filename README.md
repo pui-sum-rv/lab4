@@ -341,21 +341,15 @@ We will now see ORB in action through examples and assigments!
 
 Generally, convolution is a mathematical operation between two functions. In the context of this assignment, however, we will focus on discrete 2D convolution between two square images, as that is most relevant for image processing. Convolution is denoted as $I(A) \star k(B)$ where $I(A)$ is an image $I(A) \in \mathbb{R}^{W \times H}$ and $k(B)$ is a matrix $k(B) \in \mathbb{R}^{a \times b}$ indexed by locations $B \in \mathbb{N}^2$ called the **convolutional kernel**. At pixel $(x, y)$, the convolution operation is defined as:
 
-\begin{equation}
-(I \star k)(x, y) = \sum_{i=-a}^{a} \sum_{j=-b}^{b} I[x + i, y + j] k[i, j]
-\end{equation}
+![image](https://github.com/user-attachments/assets/4f1f04a3-45d7-456e-8589-f07ca0bce4e4)
+
  
 Explained differently, the resulting image is produced by sliding the kernel over the input image pixel by pixel. At each pixel location, values where the kernel and the image overlap are multiplied, and all of the products are summed together to form the corresponding pixel's value in the output image.
 
 While mathematically a simple operation, convolution is exceedingly powerful and can produce almost endless transformations of an image. It's most commonly used for filtering --- a convolution can elegantly find patterns in the image and increase their intensity. One such example is the convolution with a kernel called the Prewitt operator:
 
-\begin{equation}
-I_y(A) = I(A) \star \begin{bmatrix}
--1 & 0 & 1\\
--1 & 0 & 1\\
--1 & 0 & 1\\
-\end{bmatrix}
-\end{equation}
+![image](https://github.com/user-attachments/assets/04907ad3-2d88-4187-a321-10a3926b3e3c)
+
 
 When convolved with this kernel, the resulting image has high-intensity pixels in regions where vertical edges are present, and low intensity everywhere else. This can be seen in the following image:
 
@@ -367,49 +361,15 @@ This process happens as follows. For each pixel of the input image, the kernel i
 
 To illustrate this, let us consider $1 \times 3$ region of the image where no vertical edges are present:
 
-\begin{equation}
-\begin{bmatrix}
-128 & 130 & 136\\
-\end{bmatrix}
-\star
-\begin{bmatrix}
--1 & 0 & 1\\
--1 & 0 & 1\\
--1 & 0 & 1\\
-\end{bmatrix}
-=
-\sum_{i,j}
-\begin{bmatrix}
--1 \times 0 + 0 \times 128 + 1 \times 130\\ 
--1 \times 128 + 0 \times 130 + 1 \times 136\\
--1 \times 130 + 0 \times 136 + 1 \times 0\\
-\end{bmatrix}
-= 8
-\end{equation}
+![image](https://github.com/user-attachments/assets/48876139-8522-4805-a6ab-a0a1963cf46f)
+
 
 This section of the image does not contain a vertical edge, so the convolution result is a relatively low value. In a standard image with values in $[0, 255)$, 8 would appear almost completely black.
 
 However, consider some section of the image where a vertical edge is indeed present:
 
-\begin{equation}
-\begin{bmatrix}
-63 & 66 & 132\\
-\end{bmatrix}
-\star
-\begin{bmatrix}
--1 & 0 & 1\\
--1 & 0 & 1\\
--1 & 0 & 1\\
-\end{bmatrix}
-=
-\sum_{i,j}
-\begin{bmatrix}
--1 \times 0 + 0 \times 64 + 1 \times 66\\ 
--1 \times 64 + 0 \times 66 + 1 \times 132\\
--1 \times 66 + 0 \times 132 + 1 \times 0\\
-\end{bmatrix}
-= 68
-\end{equation}
+![image](https://github.com/user-attachments/assets/6641d826-e60a-46ad-be1d-713ab7cebe92)
+
 
 The value is now much larger due to the difference between the left and right sides of the image. This example demonstrates how a relatively simple kernel can capture complex features of an image.
 
@@ -447,12 +407,8 @@ Assume we want to detect the eyes on the following image:
 
 Notice that the eyes consist of a light region and then a dark region (iris). We may be able to detect the eyes using the following kernel:
 
-\begin{bmatrix}
-1 & 1 & -1 & -1\\
-1 & 1 & -1 & -1\\
-1 & 1 & -1 & -1\\
-1 & 1 & -1 & -1\\
-\end{bmatrix}
+![image](https://github.com/user-attachments/assets/a7319d7f-ac2a-4427-87d9-ad818f20827a)
+
 
 This kernel will take the difference between the left two pixels and the right two pixels. If the pixels on the left are high and on the right are low, the resulting value will be high.
 
