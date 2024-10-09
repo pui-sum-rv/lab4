@@ -134,7 +134,8 @@ This yields a sine-like line in the Hough space.  This principle is illustrated 
 On the left image transformation of a single point to a line in the Hough space is shown while on the right image 
 the Hough space line representation through all possible lines through the point is shown. 
 
-<li><b>The Hough Space Accumulator<b/></li>
+#### The Hough Space Accumulator
+
 To determine the areas where most Hough space lines intersect, an accumulator covering the Hough space is used. When an edge point is transformed, bins in the accumulator is incremented
 for all lines that could pass through that point. The resolution of the accumulator determines the precision with which lines can be detected. 
 In general, the number of dimensions of the accumulator corresponds to the number of unknown parameters in the Hough transform problem. Thus, for ellipses a 5-dimensional space is required
@@ -241,7 +242,7 @@ More information can be found at:  <a href="https://docs.opencv.org/3.0-beta/mod
 
 ## Task 4
 
-On the image slike/crossword.jpg, perform corner detection so that the corners of the crossword are visible. Load the image as **grayscale** and call the cornerHarris function on it. Example call with good initial parameter values:
+On the image `images/crossword.jpg`, perform corner detection so that the corners of the crossword are visible. Load the image as **grayscale** and call the cornerHarris function on it. Example call with good initial parameter values:
 
 `corners = cv.cornerHarris(img, 15, 3, 0.05)`
 
@@ -249,4 +250,210 @@ Then set the original image to 255 wherever the corners image is greater than a 
 
 By combining the Canny edge detector and Harris corner detector, we can segment different parts of images. For example, we can count blood cells in microscopic images, find solutions to Sudoku puzzles, crosswords, or in chess, detect cracks and anomalies in various materials or roads, etc.
 
+# Advanced Feature Detection 
 
+Now we will take a look at more two topics: advanced feature detection extraction algorithms and object detection (using traditional image processing methods). 
+
+Feature extraction is a process of dimensionality reduction by which an initial set of raw data is reduced to more manageable groups for processing. A characteristic of these large data sets is a large number of variables that require a lot of computing resources to process. Feature extraction is the name for methods that select and /or combine variables into features, effectively reducing the amount of data that must be processed, while still accurately and completely describing the original data set.
+
+Object detection is a technique that works to identify and locate objects within an image or video. In this way it provides better understanding and analisys of scenes in images and videos. Specifically, object detection draws bounding boxes around these detected objects, which allow us to locate where said objects are in (or how they move through) a given scene. With this kind of identification and localization, object detection can be used to count objects in a scene and determine and track their precise locations, all while accurately labeling them. 
+
+## Feature Detection and Extraction
+
+What is feature?
+A local image feature is a tiny patch in the image that's invariant to image scaling, rotation and change in illumination.
+It's like the tip of a tower, or the corner of a window in the image above. Unlike a random point on the background (sky) in the image above,
+the tip of the tower can be precise detected in most images of the same scene. It is geometricly (translation, rotation, ...) and photometricly (brightness, exposure, ...) invariant.
+A good local feature is like the piece you start with when solving a jigsaw puzzle, except on a much smaller scale.
+It's the eye of the cat or the corner of the table, not a piece on a blank wall.
+The extracted local features must be:
+
+* Repeatable and precise so they can be extracted from different images showing the same object.
+* Distinctive to the image, so images with different structure will not have them.
+
+Due to these requirements, most local feature detectors extract corners and blobs. There is a wealth of algorithms satisfying the above requirements for feature detection (finding interest points on an image) and description
+(generating a vector representation for them). They include already learned Harris Corner Detection (in lab 4), and some more advanced algorithms, such as: 
+
+* Scale Invariant Feature Transform (SIFT)
+* Speeded-Up Robust Features (SURF)
+* Features from Accelerated Segment Test (FAST)
+* Binary Robust Independent Elementary Features (BRIEF)
+* Oriented FAST and rotated BRIEF (ORB)
+
+The SIFT and SURF algorithms are patented by their respective creators, and while they are free to use in academic and research settings, you should technically be obtaining a license/permission from the creators if you are using them in a commercial (i.e. for-profit) application.
+
+Since is a known fact that ORB performs as well as SIFT on the task of feature detection (while outperforms SURF), in this lab, our focus will be on Oriented FAST and rotated BRIED (ORB).
+
+## Oriented FAST and rotated BRIEF (ORB) 
+
+Oriented FAST and rotated BRIEF (ORB) is a fast robust local feature detector. It is basically a fusion of FAST keypoint detector and BRIEF descriptor
+with many modifications to enhance the performance.
+
+ORB is a fusion of FAST keypoint detector and BRIEF descriptor with some added features to improve the performance. FAST is Features from Accelerated Segment Test used to detect features from the provided image. It also uses a pyramid to produce multiscale-features. Now it doesn’t compute the orientation and descriptors for the features, so this is where BRIEF comes in the role.
+
+ORB uses BRIEF descriptors but as the BRIEF performs poorly with rotation. So what ORB does is to rotate the BRIEF according to the orientation of keypoints. Using the orientation of the patch, its rotation matrix is found and rotates the BRIEF to get the rotated version. ORB is an efficient alternative to SIFT or SURF algorithms used for feature extraction, in computation cost, matching performance, and mainly the patents. SIFT and SURF are patented and you are supposed to pay them for its use. But ORB is not patented.
+
+
+We’ll start by showing the following figure that shows an example of using ORB to match between real world images with viewpoint change. Green lines are valid matches, red circles indicate unmatched points.
+
+ORB  uses an orientation compensation mechanism, making it rotation invariant while learning the optimal sampling pairs.
+
+### Orientation Compensation
+
+ORB uses a simple measure of corner orientation – the intensity centroid [5]. First, the moments of a patch are defined as:
+
+<p align="center">
+  <img src="https://gilscvblog.files.wordpress.com/2013/10/figure2.jpg">
+</p>
+
+With these moments we can find the centroid, the “center of mass” of the patch as:
+
+<p align="center">
+  <img src="https://gilscvblog.files.wordpress.com/2013/10/figure3.jpg?w=300&h=116">
+</p>
+
+We can construct a vector from the corner’s center O, to the centroid -OC. The orientation of the patch is then given by:
+
+<p align="center">
+  <img src="https://gilscvblog.files.wordpress.com/2013/10/figure4.jpg?w=300&h=53">
+</p>
+
+Here is an illustration to help explain the method:
+
+<p align="center">
+  <img src="https://gilscvblog.files.wordpress.com/2013/10/angle.jpg">
+</p>
+
+
+Once we’ve calculated the orientation of the patch, we can rotate it to a canonical rotation and then compute the descriptor, thus obtaining some rotation invariance.
+
+We will now see ORB in action through examples and assigments! 
+
+### Assigment 1 - Feature Detection with ORB detector
+
+# Using Convolutions for Feature Detection
+
+## Image Convolution
+
+## Introduction
+
+![convolution](https://i.postimg.cc/x1nPhpHy/conv.png)
+
+Generally, convolution is a mathematical operation between two functions. In the context of this assignment, however, we will focus on discrete 2D convolution between two square images, as that is most relevant for image processing. Convolution is denoted as $I(A) \star k(B)$ where $I(A)$ is an image $I(A) \in \mathbb{R}^{W \times H}$ and $k(B)$ is a matrix $k(B) \in \mathbb{R}^{a \times b}$ indexed by locations $B \in \mathbb{N}^2$ called the **convolutional kernel**. At pixel $(x, y)$, the convolution operation is defined as:
+
+\begin{equation}
+(I \star k)(x, y) = \sum_{i=-a}^{a} \sum_{j=-b}^{b} I[x + i, y + j] k[i, j]
+\end{equation}
+ 
+Explained differently, the resulting image is produced by sliding the kernel over the input image pixel by pixel. At each pixel location, values where the kernel and the image overlap are multiplied, and all of the products are summed together to form the corresponding pixel's value in the output image.
+
+While mathematically a simple operation, convolution is exceedingly powerful and can produce almost endless transformations of an image. It's most commonly used for filtering --- a convolution can elegantly find patterns in the image and increase their intensity. One such example is the convolution with a kernel called the Prewitt operator:
+
+\begin{equation}
+I_y(A) = I(A) \star \begin{bmatrix}
+-1 & 0 & 1\\
+-1 & 0 & 1\\
+-1 & 0 & 1\\
+\end{bmatrix}
+\end{equation}
+
+When convolved with this kernel, the resulting image has high-intensity pixels in regions where vertical edges are present, and low intensity everywhere else. This can be seen in the following image:
+
+![prewitt](https://i.postimg.cc/X7cffKhZ/prewitt-example.png)
+
+Vertical edges necessarily have to have a large jump in values going from left to right or right to left. Otherwise, there would be no perceptible edge. This kernel takes advantage of that fact to accentuate parts of the image where there is such a jump. It does this by replacing each pixel with the difference between the pixels on its left and its right.
+
+This process happens as follows. For each pixel of the input image, the kernel is placed such that it is centered on that pixel. This means that the values of the pixel as well as its neighbors above and below are all multiplied by zero. The neighbors on the left are multiplied by -1, and the ones on the right are multiplied by 1. Summed together, the result represents the sum of the values on the right of the pixel, minus the sum of the values on the left.
+
+To illustrate this, let us consider $1 \times 3$ region of the image where no vertical edges are present:
+
+\begin{equation}
+\begin{bmatrix}
+128 & 130 & 136\\
+\end{bmatrix}
+\star
+\begin{bmatrix}
+-1 & 0 & 1\\
+-1 & 0 & 1\\
+-1 & 0 & 1\\
+\end{bmatrix}
+=
+\sum_{i,j}
+\begin{bmatrix}
+-1 \times 0 + 0 \times 128 + 1 \times 130\\ 
+-1 \times 128 + 0 \times 130 + 1 \times 136\\
+-1 \times 130 + 0 \times 136 + 1 \times 0\\
+\end{bmatrix}
+= 8
+\end{equation}
+
+This section of the image does not contain a vertical edge, so the convolution result is a relatively low value. In a standard image with values in $[0, 255)$, 8 would appear almost completely black.
+
+However, consider some section of the image where a vertical edge is indeed present:
+
+\begin{equation}
+\begin{bmatrix}
+63 & 66 & 132\\
+\end{bmatrix}
+\star
+\begin{bmatrix}
+-1 & 0 & 1\\
+-1 & 0 & 1\\
+-1 & 0 & 1\\
+\end{bmatrix}
+=
+\sum_{i,j}
+\begin{bmatrix}
+-1 \times 0 + 0 \times 64 + 1 \times 66\\ 
+-1 \times 64 + 0 \times 66 + 1 \times 132\\
+-1 \times 66 + 0 \times 132 + 1 \times 0\\
+\end{bmatrix}
+= 68
+\end{equation}
+
+The value is now much larger due to the difference between the left and right sides of the image. This example demonstrates how a relatively simple kernel can capture complex features of an image.
+
+Beyond edge detection, there are many commonly used convolution kernels to perform tasks such as blurring, sharpening, or denoising images. A convolutional neural network can leverage the power of the convolution by stringing together sequences of intricate kernels to match complex patterns in the image.
+
+### Resources
+
+- https://en.wikipedia.org/wiki/Kernel_(image_processing)
+- https://vincmazet.github.io/bip/filtering/convolution.html
+- https://arxiv.org/pdf/1603.07285.pdf
+
+
+**Finish the code blocks below at the TODO comments. You do not need to change the rest of the code, or code blocks that do not have TODO comments.**
+
+## Understanding kernels
+
+Different convolutional kernels can achieve different effects such as:
+
+ - edge detection
+ - image engancement (e.g. sharpening)
+ - blurring
+ - denoising
+ - feature detection
+
+You can see various examples of kernels here:
+
+ - https://en.wikipedia.org/wiki/Kernel_(image_processing)
+ - https://setosa.io/ev/image-kernels/
+
+## Using Convolutions for Feature Detection
+
+Assume we want to detect the eyes on the following image:
+
+![](images/woman_darkhair.png)
+
+Notice that the eyes consist of a light region and then a dark region (iris). We may be able to detect the eyes using the following kernel:
+
+\begin{bmatrix}
+1 & 1 & -1 & -1\\
+1 & 1 & -1 & -1\\
+1 & 1 & -1 & -1\\
+1 & 1 & -1 & -1\\
+\end{bmatrix}
+
+This kernel will take the difference between the left two pixels and the right two pixels. If the pixels on the left are high and on the right are low, the resulting value will be high.
+
+Implement a convolution with this kernel in the next code block.
